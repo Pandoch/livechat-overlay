@@ -381,9 +381,6 @@
                             <button onclick="fillCommand('!tiktok @everyone https://tiktok.com/@example/video/123')" class="text-[11px] bg-cyan-950/50 hover:bg-cyan-900 text-cyan-200 px-2 py-1 rounded border border-cyan-500/30 transition">
                                 🎵 !tiktok
                             </button>
-                            <button onclick="fillCommand('/link')" class="text-[11px] bg-purple-950/50 hover:bg-purple-900 text-purple-200 px-2 py-1 rounded border border-purple-500/30 transition">
-                                🔗 /link
-                            </button>
                         </div>
 
                         <!-- Chat Input Form -->
@@ -471,44 +468,11 @@
                     <!-- Command item -->
                     <div class="bg-[#120e21] p-4 rounded-xl border border-brand-border/60">
                         <div class="flex items-center justify-between mb-2">
-                            <span class="font-mono font-bold text-brand-300 text-sm">!send &lt;cibles&gt; [média] [texte]</span>
-                            <span class="text-[10px] bg-brand-500/20 text-brand-300 px-2 py-0.5 rounded font-semibold">Slash & Prefix</span>
-                        </div>
-                        <p class="text-xs text-gray-400">
-                            Envoie une image, un GIF ou un fichier vidéo à tes cibles avec un texte en surimpression facultatif.
-                        </p>
-                    </div>
-
-                    <!-- Command item -->
-                    <div class="bg-[#120e21] p-4 rounded-xl border border-brand-border/60">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-mono font-bold text-red-400 text-sm">!yt &lt;cibles&gt; &lt;url&gt; [timecode]</span>
-                            <span class="text-[10px] bg-red-500/20 text-red-300 px-2 py-0.5 rounded font-semibold">YouTube</span>
-                        </div>
-                        <p class="text-xs text-gray-400">
-                            Lance la lecture d'une vidéo YouTube sur l'écran des cibles avec possibilité de diffuser le son uniquement.
-                        </p>
-                    </div>
-
-                    <!-- Command item -->
-                    <div class="bg-[#120e21] p-4 rounded-xl border border-brand-border/60">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-mono font-bold text-cyan-400 text-sm">!tiktok / !reel &lt;cibles&gt; &lt;url&gt;</span>
-                            <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-2 py-0.5 rounded font-semibold">Short Video</span>
-                        </div>
-                        <p class="text-xs text-gray-400">
-                            Diffuse un TikTok ou un Instagram Reel propre de 10 secondes sans interface parasite.
-                        </p>
-                    </div>
-
-                    <!-- Command item -->
-                    <div class="bg-[#120e21] p-4 rounded-xl border border-brand-border/60">
-                        <div class="flex items-center justify-between mb-2">
-                            <span class="font-mono font-bold text-purple-300 text-sm">/link & /info</span>
+                            <span class="font-mono font-bold text-purple-300 text-sm">/info</span>
                             <span class="text-[10px] bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded font-semibold">Utilitaire</span>
                         </div>
                         <p class="text-xs text-gray-400">
-                            Récupère facilement ton User ID Discord et le Guild ID du serveur pour configurer l'application locale.
+                            Affiche les liens utiles et les informations concernant le Livechat.
                         </p>
                     </div>
 
@@ -671,17 +635,13 @@
                     text: '🎵 TikTok / Reel en diffusion'
                 });
             }
-            else if (lower.startsWith('/link')) {
-                const response = `🔗 **Informations de liaison Livechat**\nUser ID : \`987654321012345678\`\nGuild ID : \`1116753136393125951\``;
-                appendMessage('CouscousBot', response, 'https://api.dicebear.com/7.x/bottts/svg?seed=CouscousKing', true);
-            }
             else if (lower.startsWith('/info') || lower.startsWith('!info')) {
                 const response = `🌐 **Liens utiles Livechat :**\n• Tutoriel: https://discord.com/channels/...\n• Setup: Exécutable disponible sur Discord`;
                 appendMessage('CouscousBot', response, 'https://api.dicebear.com/7.x/bottts/svg?seed=CouscousKing', true);
             }
             else {
                 // Default casual reply
-                appendMessage('CouscousBot', `Commande ou message reçu. Utilise !send, !yt, !tiktok ou /link pour interagir avec l'Overlay !`, 'https://api.dicebear.com/7.x/bottts/svg?seed=CouscousKing', true);
+                appendMessage('CouscousBot', `Commande ou message reçu. Utilise !send, !yt ou !tiktok pour interagir avec l'Overlay !`, 'https://api.dicebear.com/7.x/bottts/svg?seed=CouscousKing', true);
             }
         }
 
