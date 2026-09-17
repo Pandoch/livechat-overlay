@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Livechat – Ouverture du Setup</title>
+  <title>Livechat – Ouverture du Launcher</title>
   <style>
     body {
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -52,9 +52,9 @@
 </head>
 <body>
   <div class="box">
-    <h1>Λ Livechat Setup</h1>
-    <p id="status">Ouverture du protocole Livechat…</p>
-    <a class="btn" id="manual" href="#" style="display:none">Ouvrir le Setup manuellement</a>
+    <h1>Λ Livechat</h1>
+    <p id="status">Ouverture du Launcher Livechat…</p>
+    <a class="btn" id="manual" href="#" style="display:none">Ouvrir le Launcher manuellement</a>
     <code id="raw" style="display:none"></code>
   </div>
   <script>
@@ -74,7 +74,7 @@
       raw.textContent = protocolUrl;
       raw.style.display = "block";
 
-      // Tentative d'ouverture automatique du protocole Windows
+      // Tentative d'ouverture automatique du protocole Windows → Launcher
       try {
         window.location.href = protocolUrl;
       } catch (e) {}
@@ -82,10 +82,10 @@
       // Message de secours après un court délai
       setTimeout(function () {
         document.getElementById("status").innerHTML =
-          "Si le Setup ne s'est pas ouvert :<br>" +
+          "Si le Launcher ne s'est pas ouvert :<br>" +
           "1. Clique le bouton ci-dessous<br>" +
           "2. Ou copie le lien et colle-le dans la barre d'adresse / Win+R<br>" +
-          "3. Vérifie que Setup.exe a bien été lancé une fois (protocole enregistré).";
+          "3. Vérifie que le Setup a bien été lancé une fois (protocole livechat:// enregistré).";
       }, 800);
     })();
   </script>
