@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Livechat – Arrêt session</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; min-height: 100vh; font-family: "Segoe UI", system-ui, sans-serif;
+      background: #121212; color: #fff; display: flex; align-items: center; justify-content: center;
+    }
+    .card {
+      width: min(480px, 92vw); background: #1e1e1e; border: 1px solid #2c2c2c;
+      border-radius: 16px; padding: 28px 24px;
+    }
+    h1 { font-size: 1.25rem; margin: 0 0 10px; }
+    p { color: #a0a0a0; line-height: 1.45; }
+    button {
+      margin-top: 18px; width: 100%; height: 48px; border: 0; border-radius: 24px;
+      background: #8b2e2e; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer;
+    }
+    button:hover { background: #a33a3a; }
+    .ok { color: #e0c070; font-size: .9rem; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🛑 Arrêter la session Livechat invité</h1>
+    <p>Ce lien ferme la session temporaire créée via <code>/lienperso</code> sur ce PC et programme la suppression des fichiers au prochain démarrage Windows.</p>
+    <button id="btn">Fermer la session maintenant</button>
+    <div class="ok" id="ok"></div>
+  </div>
+  <script>
+    const token = (location.hash || '').replace(/^#/, '').trim()
+      || new URLSearchParams(location.search).get('t')
+      || '';
+    document.getElementById('btn').addEventListener('click', () => {
+      if (!token) {
+        document.getElementById('ok').textContent = 'Payload manquant. Utilise le lien complet fourni par !stop / /stopguest.';
+        return;
+      }
+      window.location.href = 'livechat://stop/' + token;
+      document.getElementById('ok').textContent = 'Signal d’arrêt envoyé au Launcher…';
+    });
+    // Auto-trigger once if token present
+    if (token) {
+      setTimeout(() => document.getElementById('btn').click(), 400);
+    }
+  </script>
+</body>
+</html>
