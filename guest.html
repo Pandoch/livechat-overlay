@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Livechat – Lien personnel</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0; min-height: 100vh; font-family: "Segoe UI", system-ui, sans-serif;
+      background: #121212; color: #fff; display: flex; align-items: center; justify-content: center;
+    }
+    .card {
+      width: min(520px, 92vw); background: #1e1e1e; border: 1px solid #2c2c2c;
+      border-radius: 16px; padding: 28px 24px; box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    }
+    h1 { font-size: 1.35rem; margin: 0 0 8px; }
+    p { color: #a0a0a0; line-height: 1.45; font-size: .95rem; }
+    .tos {
+      max-height: 220px; overflow: auto; background: #181818; border: 1px solid #2c2c2c;
+      border-radius: 10px; padding: 12px 14px; font-size: .85rem; color: #c8c8c8; margin: 16px 0;
+    }
+    label { display: flex; gap: 10px; align-items: flex-start; font-size: .9rem; color: #ddd; cursor: pointer; }
+    button {
+      margin-top: 18px; width: 100%; height: 48px; border: 0; border-radius: 24px;
+      background: #0078f2; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer;
+    }
+    button:disabled { background: #333; color: #777; cursor: not-allowed; }
+    button:not(:disabled):hover { background: #1a8cff; }
+    .err { color: #e07070; font-size: .9rem; margin-top: 12px; display: none; }
+    .ok { color: #70c070; font-size: .9rem; margin-top: 12px; display: none; }
+    .hint { font-size: .8rem; color: #666; margin-top: 14px; text-align: center; }
+    code { background: #2a2a2a; padding: 1px 6px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Λ  Activer Livechat (session perso)</h1>
+    <p>Ce lien a été généré avec <code>/lienperso</code>. Une session temporaire sera configurée pour <strong>ton</strong> compte Discord uniquement.</p>
+    <div class="tos" id="tos">
+      <strong>Conditions d’utilisation (résumé)</strong><br/><br/>
+      1. Livechat affiche des médias (images, GIF, vidéos, audio) en overlay pendant que tu joues ou utilises ton PC.<br/><br/>
+      2. La session « lien personnel » installe un programme temporaire dans un dossier temp Windows, pré-configuré avec le token bot et ton User ID fournis dans le lien signé.<br/><br/>
+      3. Ce programme se supprime automatiquement au prochain démarrage de Windows (entrée RunOnce). Tu peux aussi utiliser le lien d’arrêt fourni avec <code>!stop</code> / <code>/stopguest</code>.<br/><br/>
+      4. Tu restes responsable du contenu envoyé/reçu sur les serveurs concernés. N’accepte un lien que s’il provient d’une source de confiance (ton serveur / ton bot Livechat).<br/><br/>
+      5. Le lien est signé et à durée limitée. Ne le partage pas publiquement : il contient des informations de configuration sensibles.<br/><br/>
+      6. En cliquant sur « Activer le Livechat », tu acceptes ces conditions et autorises le lancement du protocole <code>livechat://guest/…</code> (ou le bootstrap) sur cette machine.
+    </div>
+    <label>
+      <input type="checkbox" id="accept" />
+      <span>J’ai lu et j’accepte les conditions d’utilisation.</span>
+    </label>
+    <button id="btn" disabled>Activer le Livechat</button>
+    <div class="err" id="err"></div>
+    <div class="ok" id="ok"></div>
+    <p class="hint">Prérequis : Livechat Setup.exe déjà installé une fois sur ce PC (protocole + Viewer).<br/>Si rien ne se passe, autorise l’ouverture du protocole dans le navigateur.</p>
+  </div>
+  <script>
+    const accept = document.getElementById('accept');
+    const btn = document.getElementById('btn');
+    const err = document.getElementById('err');
+    const ok = document.getElementById('ok');
+    accept.addEventListener('change', () => { btn.disabled = !accept.checked; });
+
+    function tokenFromHash() {
+      let h = (location.hash || '').replace(/^#/, '').trim();
+      if (!h) {
+        const q = new URLSearchParams(location.search);
+        h = (q.get('t') || q.get('token') || '').trim();
+      }
+      return h;
+    }
+
+    btn.addEventListener('click', () => {
+      err.style.display = 'none';
+      ok.style.display = 'none';
+      const token = tokenFromHash();
+      if (!token || token.indexOf('.') < 0) {
+        err.textContent = 'Lien invalide ou expiré (payload manquant). Relance /lienperso sur Discord.';
+        err.style.display = 'block';
+        return;
+      }
+      // Prefer custom protocol handled by LivechatLauncher
+      const proto = 'livechat://guest/' + token;
+      ok.textContent = 'Ouverture du Launcher…';
+      ok.style.display = 'block';
+      // Attempt protocol launch
+      window.location.href = proto;
+      // Fallback note after a short delay
+      setTimeout(() => {
+        ok.innerHTML = 'Si le Launcher ne s’est pas ouvert, installe <strong>Setup.exe</strong> puis réessaie.<br/>Protocole : <code>livechat://guest/…</code>';
+      }, 1500);
+    });
+  </script>
+</body>
+</html>
