@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Livechat – Arrêter le client invité</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: "Segoe UI", system-ui, sans-serif; background: #121212; color: #fff; padding: 24px;
+    }
+    .card {
+      max-width: 440px; width: 100%; background: #1e1e1e; border: 1px solid #2c2c2c;
+      border-radius: 16px; padding: 28px; text-align: center;
+    }
+    h1 { font-size: 1.3rem; margin: 0 0 10px; }
+    p { color: #a0a0a0; font-size: 0.92rem; line-height: 1.45; }
+    button {
+      margin-top: 16px; width: 100%; border: none; border-radius: 28px; padding: 14px;
+      font-size: 1rem; font-weight: 700; background: #8b2e2e; color: #fff; cursor: pointer;
+    }
+    button:hover { background: #a33a3a; }
+    .status { margin-top: 14px; font-size: 0.85rem; color: #a0a0a0; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Arrêter le Livechat invité</h1>
+    <p>Ce lien ferme le client temporaire et tente de supprimer ses fichiers sur cette machine.</p>
+    <button id="stop">Fermer &amp; supprimer</button>
+    <div class="status" id="status"></div>
+  </div>
+  <script>
+    (function () {
+      var token = (location.hash || "").replace(/^#/, "").trim();
+      var status = document.getElementById("status");
+      var btn = document.getElementById("stop");
+      if (!token) {
+        status.textContent = "Lien invalide.";
+        btn.disabled = true;
+        return;
+      }
+      btn.addEventListener("click", function () {
+        var url = "livechat://stop/" + encodeURIComponent(token);
+        status.textContent = "Envoi de la demande d’arrêt…";
+        var iframe = document.createElement("iframe");
+        iframe.style.display = "none";
+        iframe.src = url;
+        document.body.appendChild(iframe);
+        setTimeout(function () {
+          try { window.location.href = url; } catch (e) {}
+        }, 150);
+        setTimeout(function () {
+          status.textContent = "Si le client était ouvert, il va se fermer et se nettoyer.";
+        }, 1000);
+      });
+    })();
+  </script>
+</body>
+</html>
