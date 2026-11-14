@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Livechat – Arrêt mode personnel</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      font-family: "Segoe UI", system-ui, sans-serif; background: #121212; color: #fff; padding: 24px;
+    }
+    .card {
+      max-width: 460px; width: 100%; background: #1e1e1e; border: 1px solid #2c2c2c;
+      border-radius: 16px; padding: 28px; text-align: center;
+    }
+    h1 { font-size: 1.3rem; margin: 0 0 10px; }
+    p { color: #a0a0a0; font-size: 0.92rem; line-height: 1.45; }
+    button {
+      margin-top: 12px; width: 100%; height: 48px; border: none; border-radius: 24px;
+      background: #8b2e2e; color: #fff; font-weight: 700; font-size: 1rem; cursor: pointer;
+    }
+    button:hover { background: #a33a3a; }
+    .ok { color: #7dcea0; font-size: 0.85rem; margin-top: 12px; white-space: pre-wrap; }
+    .err { color: #e07070; font-size: 0.85rem; margin-top: 12px; }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>Arrêter Livechat Perso</h1>
+    <p>
+      Ce lien ferme le programme Livechat installé via <strong>/lienperso</strong>
+      et supprime ses fichiers locaux sur ce PC.
+    </p>
+    <button id="btn">Fermer et désinstaller</button>
+    <div id="msg"></div>
+  </div>
+  <script>
+    const key = decodeURIComponent((location.hash || "").replace(/^#/, ""));
+    const msg = document.getElementById("msg");
+    const btn = document.getElementById("btn");
+    if (!key || key.length < 8) {
+      msg.className = "err";
+      msg.textContent = "Lien d'arrêt invalide.";
+      btn.disabled = true;
+    }
+    btn.addEventListener("click", () => {
+      const lines = [
+        "@echo off",
+        "title Livechat – Stop Perso",
+        "echo Arret de Livechat Perso...",
+        "taskkill /F /IM LivechatViewer.exe /T >nul 2>&1",
+        "taskkill /F /IM LivechatPerso.exe /T >nul 2>&1",
+        "taskkill /F /IM LivechatLauncher.exe /T >nul 2>&1",
+        "set \"DIR=%LOCALAPPDATA%\\LivechatPerso\"",
+        "if exist \"%DIR%\\stop_key.txt\" (",
+        "  set /p LOCALKEY=<\"%DIR%\\stop_key.txt\"",
+        ")",
+        "rem Always attempt cleanup of perso folder",
+        "if exist \"%DIR%\" (",
+        "  rmdir /S /Q \"%DIR%\" 2>nul",
+        ")",
+        "reg delete \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\RunOnce\" /v LivechatPersoCleanup /f >nul 2>&1",
+        "schtasks /Delete /TN \"LivechatPersoCleanup\" /F >nul 2>&1",
+        "echo Termine.",
+        "timeout /t 3 >nul"
+      ];
+      // Embed expected key as comment for audit (cleanup is local)
+      lines.splice(3, 0, "rem stop_key=" + key.replace(/[^a-zA-Z0-9]/g, ""));
+      const blob = new Blob([lines.join("\r\n")], { type: "application/octet-stream" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = "Stop_Livechat_Perso.cmd";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      msg.className = "ok";
+      msg.textContent = "✓ Stop_Livechat_Perso.cmd téléchargé – ouvre-le pour fermer et nettoyer.";
+      // Optional: notify via protocol if launcher present
+      try {
+        location.href = "livechat://stop/" + encodeURIComponent(key);
+      } catch (e) {}
+    });
+  </script>
+</body>
+</html>
