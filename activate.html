@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Livechat – Activation personnelle</title>
+  <style>
+    :root {
+      --bg: #121212;
+      --card: #1e1e1e;
+      --border: #2c2c2c;
+      --text: #ffffff;
+      --muted: #a0a0a0;
+      --accent: #3d5a3a;
+      --accent-h: #4a6b45;
+      --blue: #0078f2;
+      --blue-h: #1a8cff;
+      --warn: #e0c070;
+      --danger: #e07070;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 520px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 28px 24px;
+      box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    }
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.45rem;
+      letter-spacing: 0.02em;
+    }
+    .sub {
+      color: var(--muted);
+      font-size: 0.92rem;
+      margin-bottom: 18px;
+      line-height: 1.45;
+    }
+    .tos {
+      background: #181818;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      max-height: 220px;
+      overflow-y: auto;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+      margin-bottom: 14px;
+    }
+    .tos strong { color: var(--text); }
+    label.check {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      font-size: 0.9rem;
+      margin-bottom: 16px;
+      cursor: pointer;
+      user-select: none;
+    }
+    label.check input { margin-top: 3px; accent-color: var(--accent); }
+    button {
+      width: 100%;
+      border: none;
+      border-radius: 24px;
+      height: 48px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, opacity .15s;
+    }
+    button.primary {
+      background: var(--blue);
+      color: #fff;
+    }
+    button.primary:hover:not(:disabled) { background: var(--blue-h); }
+    button:disabled {
+      opacity: 0.45;
+      cursor: not-allowed;
+    }
+    .status {
+      margin-top: 14px;
+      font-size: 0.85rem;
+      color: var(--muted);
+      min-height: 1.2em;
+      white-space: pre-wrap;
+    }
+    .status.err { color: var(--danger); }
+    .status.ok { color: #7dcea0; }
+    .meta {
+      margin-top: 18px;
+      font-size: 0.75rem;
+      color: #666;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .badge {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: #2a3a2a;
+      color: #9dca9d;
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">Lien personnel · Livechat</div>
+    <h1>Λ  Activer Livechat</h1>
+    <p class="sub" id="subtitle">
+      Accepte les conditions, puis active pour télécharger un programme préconfiguré
+      pour ton compte Discord. Il se supprime à l’extinction du PC.
+    </p>
+
+    <div class="tos" id="tos">
+      <strong>Conditions d’utilisation – Livechat (mode personnel)</strong><br><br>
+      1. Livechat affiche des médias (images, GIF, vidéos, audio) en overlay sur ton écran,
+      envoyés via Discord par les membres autorisés des serveurs liés.<br><br>
+      2. En activant ce lien, un petit programme s’installe localement (dossier
+      AppData\Local\LivechatPerso), se configure automatiquement avec l’identifiant
+      Discord associé à ce lien, et lance l’overlay.<br><br>
+      3. Ce programme est <strong>temporaire</strong> : il est conçu pour se désinstaller
+      automatiquement à la fermeture / extinction de Windows. Tu peux aussi le fermer
+      via le lien <code>!stop</code> fourni par l’utilisateur hôte.<br><br>
+      4. Tu restes responsable de l’usage conforme aux règles Discord et à la loi.
+      N’accepte ce lien que si tu fais confiance à la personne qui te l’a envoyé.<br><br>
+      5. Aucune garantie de disponibilité. Les tokens techniques restent signés et
+      à durée limitée. Ne partage pas ce lien publiquement.
+    </div>
+
+    <label class="check">
+      <input type="checkbox" id="accept" />
+      <span>J’ai lu et j’accepte les conditions d’utilisation.</span>
+    </label>
+
+    <button class="primary" id="btn" disabled>Activer le Livechat</button>
+    <div class="status" id="status"></div>
+    <div class="meta">
+      Fichiers → %LOCALAPPDATA%\LivechatPerso<br>
+      Suppression auto à l’arrêt du PC · Lien signé HMAC
+    </div>
+  </div>
+
+  <script>
+    // Payload after # (same pattern as open.html)
+    const rawHash = (location.hash || "").replace(/^#/, "");
+    const token = decodeURIComponent(rawHash || "");
+    const statusEl = document.getElementById("status");
+    const btn = document.getElementById("btn");
+    const accept = document.getElementById("accept");
+
+    // GitHub release asset for the personal bootstrap (upload LivechatPerso.exe)
+    const PERSO_EXE_URL =
+      "https://github.com/Pandoch/livechat-overlay/releases/latest/download/LivechatPerso.exe";
+
+    function setStatus(msg, kind) {
+      statusEl.textContent = msg || "";
+      statusEl.className = "status" + (kind ? " " + kind : "");
+    }
+
+    accept.addEventListener("change", () => {
+      btn.disabled = !accept.checked || !token || token.length < 40;
+    });
+
+    if (!token || token.length < 40) {
+      setStatus(
+        "Lien invalide ou incomplet.\nDemande un nouveau /lienperso sur Discord.",
+        "err"
+      );
+      btn.disabled = true;
+      accept.disabled = true;
+    }
+
+    function downloadTextFile(filename, text) {
+      const blob = new Blob([text], { type: "application/octet-stream" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => {
+        URL.revokeObjectURL(a.href);
+        a.remove();
+      }, 1500);
+    }
+
+    function buildActivatorCmd(tok) {
+      // CMD bootstrap: download Perso exe if needed, write token, run it, schedule cleanup hint
+      const safeTok = String(tok).replace(/"/g, "");
+      return [
+        "@echo off",
+        "setlocal EnableExtensions",
+        "title Livechat Perso – Activation",
+        "set \"DIR=%LOCALAPPDATA%\\LivechatPerso\"",
+        "mkdir \"%DIR%\" 2>nul",
+        "echo [Livechat] Preparation du mode personnel...",
+        "echo " + safeTok + " > \"%DIR%\\perso_token.txt\"",
+        "set \"EXE=%DIR%\\LivechatPerso.exe\"",
+        "if not exist \"%EXE%\" (",
+        "  echo [Livechat] Telechargement de LivechatPerso.exe...",
+        "  powershell -NoProfile -ExecutionPolicy Bypass -Command \"try { Invoke-WebRequest -Uri '" + PERSO_EXE_URL + "' -OutFile '%DIR%\\LivechatPerso.exe' -UseBasicParsing } catch { exit 1 }\"",
+        "  if errorlevel 1 (",
+        "    echo Echec telechargement. Verifie ta connexion / GitHub Releases.",
+        "    pause",
+        "    exit /b 1",
+        "  )",
+        ")",
+        "echo [Livechat] Lancement...",
+        "start \"\" \"%EXE%\" --token-file \"%DIR%\\perso_token.txt\"",
+        "echo OK – Livechat Perso demarre. Tu peux fermer cette fenetre.",
+        "timeout /t 4 >nul",
+        "endlocal",
+        ""
+      ].join("\r\n");
+    }
+
+    btn.addEventListener("click", () => {
+      if (!accept.checked || !token) return;
+      try {
+        const cmd = buildActivatorCmd(token);
+        downloadTextFile("Activer_Livechat_Perso.cmd", cmd);
+        setStatus(
+          "✓ Fichier Activer_Livechat_Perso.cmd téléchargé.\n" +
+          "1. Ouvre-le (clic droit → Exécuter si besoin)\n" +
+          "2. Windows peut demander une confirmation SmartScreen → Exécuter quand même\n" +
+          "3. Livechat se configure et se lance tout seul",
+          "ok"
+        );
+        // Also try opening protocol if a full Launcher is already installed (bonus)
+        try {
+          const a = document.createElement("a");
+          a.href = "livechat://perso/" + encodeURIComponent(token);
+          a.style.display = "none";
+          document.body.appendChild(a);
+          a.click();
+          a.remove();
+        } catch (e) {}
+      } catch (e) {
+        setStatus("Erreur: " + e, "err");
+      }
+    });
+  </script>
+</body>
+</html>
