@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <!-- Aucune ressource externe, aucun envoi : seule cette page et son script (empreinte) sont autorisés. -->
   <meta http-equiv="Content-Security-Policy"
-        content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-CB9ACMc+oWsHOnseYztaIAuHtc+RswYEFgKMTC3CmHQ='; form-action 'none'; base-uri 'none'" />
+        content="default-src 'none'; style-src 'unsafe-inline'; script-src 'sha256-gBseAww5TEXF1R6J/DaVF0TKw+OcxkRnkXUZ+PD6wPI='; form-action 'none'; base-uri 'none'" />
   <meta name="referrer" content="no-referrer" />
   <meta name="robots" content="noindex, nofollow" />
   <title>Livechat – Ouverture</title>
@@ -24,7 +24,7 @@
     <h2>Λ Livechat</h2>
     <p id="msg">Ouverture du Launcher…</p>
     <button id="open" hidden>Ouvrir le Launcher</button>
-    <small>Si rien ne se passe, installe Livechat puis clique sur le bouton.<br>
+    <small id="note">Si rien ne se passe, installe Livechat puis clique sur le bouton.<br>
            Ce lien est à usage unique et expire après 10 minutes : ne le partage pas.</small>
   </div>
   <script>(function () {
@@ -35,6 +35,21 @@
 
   var msg = document.getElementById("msg");
   var btn = document.getElementById("open");
+
+  // « Activer mon Livechat » (salon vocal réservé) : démarre le Livechat installé, sans secret.
+  if (token === "start") {
+    var startUrl = "livechat://start";
+    var go = function () { try { window.location.href = startUrl; } catch (e) {} };
+    msg.textContent = "Démarrage de ton Livechat…";
+    document.getElementById("note").textContent =
+      "Pas encore installé ? Prends un Livechat temporaire avec le bouton dans Discord, ou rejoins discord.gg/NhWqfw6wBz.";
+    btn.textContent = "Démarrer le Livechat";
+    btn.onclick = go;
+    btn.hidden = false;
+    go();
+    setTimeout(function () { msg.textContent = "C'est parti ! Retourne dans Discord et rejoins le salon vocal."; }, 3000);
+    return;
+  }
   // 2) N'accepter que la forme d'un lien Livechat v2 ("L2…" + "." + signature, base64url).
   if (!/^L2[A-Za-z0-9_-]{40,4000}\.[A-Za-z0-9_-]{16,64}$/.test(token)) {
     msg.textContent = "Lien invalide ou incomplet. Relance /lier dans Discord.";
